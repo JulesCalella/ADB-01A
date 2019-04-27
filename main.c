@@ -86,7 +86,7 @@ int main(void)
     PIN_23 = 0;
     
     dciInit();
-    dciTurnOn();
+    //dciTurnOn();
     ret = testDci();
     
     if(ret == 1) PIN_21 = 1;        // Returned wrong data

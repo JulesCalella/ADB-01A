@@ -186,14 +186,14 @@ void dciInit()
     // One data word buffered between interrupts
     // Data frame is 2 words
     // Word length is 16 bits
-    DCICON2 = 0x002F; // 0000 0000 0010 1111
+    //DCICON2 = 0x002F; // 0000 0000 0010 1111
     DCICON2bits.BLEN = 0x1; // Two data words 
     DCICON2bits.COFSG = 0x1;    // Data frame has 2 words
     DCICON2bits.WS = 0xF;   // Data word is 16 bits
     
     // DCI Clock generator control bits
     // BCG = [Fcy/(2*Fcsck)] - 1
-    DCICON3 = 1;
+    DCICON3 = 1; //82; //1;
     
     TSCON = 0x0003; // Uses two time slot to transmit
     RSCON = 0x0003;
@@ -270,11 +270,15 @@ void writeToDci()
 int testDci()
 {
     int retData;
-    int sendData = 0xAF05;
+    int sendData = 0x15AF;
     int timeout = 0;
     
+    PIN_20 = 0;
+    PIN_21 = 0;
+    
+    
     // Activate DLOOP
-    DCICON1bits.DLOOP = 1;
+    DCICON1bits.DLOOP = 0; //1;
     
     // Clear receive buffer
     retData = RXBUF0;
@@ -283,21 +287,30 @@ int testDci()
     Nop();
     Nop();
     
+    PIN_20 = 1;
+    
     // Transfer data
     TXBUF0 = sendData;
     TXBUF1 = sendData;
+    
+    PIN_21 = 1;
+    
+    dciTurnOn();
     
     // Wait until data is sent
     while(DCISTATbits.TMPTY == 0) continue;
     
     // Wait until data is received
-    while((DCISTATbits.RFUL != 1) && (timeout < 0x0100))
-    {
-        timeout++;
-    }
+//    while((DCISTATbits.RFUL != 1) && (timeout < 0x0100))
+//    {
+//        timeout++;
+//    }
     
     // Read data
     retData = RXBUF0;
+    
+    PIN_20 = 0;
+    PIN_21 = 0;
     
     // Detach lines
     DCICON1bits.DLOOP = 0;
